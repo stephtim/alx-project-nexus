@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: ./ecommerce-backend
+    command: sh -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./ecommerce-backend:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./ecommerce-backend/.env
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports: ["6379:6379"]
+
+  celery:
+    build:
+      context: ./ecommerce-backend
+    command: celery -A config.celery_app worker -l info
+    env_file:
+      - ./ecommerce-backend/.env
+    depends_on:
+      - redis
+      - db
+
+  celery-beat:
+    build:
+      context: ./ecommerce-backend
+    command: celery -A config.celery_app beat -l info
+    env_file:
+      - ./ecommerce-backend/.env
+    depends_on:
+      - redis
+      - db
+
+volumes:
+  pgdata:
