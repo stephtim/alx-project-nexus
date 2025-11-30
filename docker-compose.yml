@@ -2,7 +2,7 @@ services:
   web:
     build:
       context: ./ecommerce_backend
-      dockerfile: ./Dockerfile
+      dockerfile: Dockerfile
     command: sh -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./ecommerce_backend:/app
@@ -30,7 +30,7 @@ services:
   celery:
     build:
       context: ./ecommerce_backend
-      dockerfile: ./Dockerfile
+      dockerfile: Dockerfile
     command: celery -A config.celery_app worker -l info
     env_file:
       - ./ecommerce_backend/.env
@@ -41,7 +41,7 @@ services:
   celery-beat:
     build:
       context: ./ecommerce_backend
-      dockerfile: ./Dockerfile
+      dockerfile: Dockerfile
     command: celery -A config.celery_app beat -l info
     env_file:
       - ./ecommerce_backend/.env
