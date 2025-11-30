@@ -2,8 +2,8 @@ pipeline {
   agent any
   stages {
     stage('Checkout') { steps { checkout scm } }
-    stage('Test') { steps { sh 'python -m pip install -r ecommerce-backend/requirements.txt && cd ecommerce-backend && python manage.py test' } }
-    stage('Build') { steps { sh 'docker build -t ecommerce-backend:latest ecommerce-backend' } }
+    stage('Test') { steps { sh 'python -m pip install -r ecommerce_backend/requirements.txt && cd ecommerce_backend && python manage.py test' } }
+    stage('Build') { steps { sh 'docker build -t ecommerce-backend:latest ecommerce_backend' } }
     stage('Deploy') {
       steps {
         withCredentials([string(credentialsId: 'DB_NAME', variable: 'DB_NAME'),
@@ -11,7 +11,7 @@ pipeline {
                          string(credentialsId: 'DB_PASS', variable: 'DB_PASS'),
                          string(credentialsId: 'SECRET_KEY', variable: 'SECRET_KEY')]) {
           sh '''
-cat > ecommerce-backend/.env <<EOF
+cat > ecommerce_backend/.env <<EOF
 SECRET_KEY=${SECRET_KEY}
 DEBUG=1
 DB_NAME=${DB_NAME}

@@ -1,14 +1,14 @@
 services:
   web:
     build:
-      context: ./ecommerce-backend
+      context: ./ecommerce_backend
     command: sh -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - ./ecommerce-backend:/app
+      - ./ecommerce_backend:/app
     ports:
       - "8000:8000"
     env_file:
-      - ./ecommerce-backend/.env
+      - ./ecommerce_backend/.env
     depends_on:
       - db
       - redis
@@ -28,20 +28,20 @@ services:
 
   celery:
     build:
-      context: ./ecommerce-backend
+      context: ./ecommerce_backend
     command: celery -A config.celery_app worker -l info
     env_file:
-      - ./ecommerce-backend/.env
+      - ./ecommerce_backend/.env
     depends_on:
       - redis
       - db
 
   celery-beat:
     build:
-      context: ./ecommerce-backend
+      context: ./ecommerce_backend
     command: celery -A config.celery_app beat -l info
     env_file:
-      - ./ecommerce-backend/.env
+      - ./ecommerce_backend/.env
     depends_on:
       - redis
       - db
