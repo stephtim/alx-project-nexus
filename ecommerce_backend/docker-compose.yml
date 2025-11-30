@@ -28,7 +28,7 @@ services:
 
   celery:
     build: .
-    command: celery -A config.celery_app worker -l info
+    command: celery -A core worker -l info
     env_file:
       - ./ecommerce/.env
     depends_on:
@@ -37,7 +37,7 @@ services:
 
   celery-beat:
     build: .
-    command: celery -A config.celery_app beat -l info
+    command: celery -A core beat -l info
     env_file:
       - ./ecommerce/.env
     depends_on:

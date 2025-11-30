@@ -15,5 +15,14 @@ COPY . /app
 
 EXPOSE 8000
 
+# Create non-root user
+RUN adduser --disabled-password --gecos '' appuser
+
+# Set working permissions
+RUN chown -R appuser:appuser /app
+
+USER appuser
+
+
 # Use the `config` package wsgi entrypoint that was added to the project.
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
