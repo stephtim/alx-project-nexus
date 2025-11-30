@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+
   web:
     build:
       context: ./ecommerce-backend
@@ -43,20 +44,20 @@ services:
       - redis
 
   db:
-    image: postgres:13
+    image: postgres:15
     environment:
-      POSTGRES_DB: ecommerce
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
   redis:
-    image: redis:6
+    image: redis:7
     ports:
       - "6379:6379"
 
 volumes:
-  postgres_data:
+  pgdata:
