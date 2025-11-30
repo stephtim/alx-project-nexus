@@ -34,7 +34,6 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    "ecommerce.middleware.request_logging.RequestLoggingMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -50,19 +49,30 @@ TEMPLATES = [{
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DB_NAME"),
-        "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_PASS"),
-        "HOST": os.getenv("DB_HOST"),
-        "PORT": os.getenv("DB_PORT"),
-    }
-}
+import sys
 
-# Fallback to SQLite for CI/local testing when Postgres env vars are not provided
-if not os.getenv("DB_NAME"):
+# Use SQLite for testing
+if "test" in sys.argv or "test" in os.environ.get("DJANGO_SETTINGS_MODULE", ""):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": str(BASE_DIR / "db_test.sqlite3"),
+        }
+    }
+elif os.getenv("DB_NAME"):
+    # Use PostgreSQL when DB_NAME is provided
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("DB_NAME"),
+            "USER": os.getenv("DB_USER"),
+            "PASSWORD": os.getenv("DB_PASS"),
+            "HOST": os.getenv("DB_HOST"),
+            "PORT": os.getenv("DB_PORT"),
+        }
+    }
+else:
+    # Fallback to SQLite for local development
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -79,6 +89,7 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
+    "EXCEPTION_HANDLER": "store.exceptions.custom_exception_handler",
 }
 
 SIMPLE_JWT = {
