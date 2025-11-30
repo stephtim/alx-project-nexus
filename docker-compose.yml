@@ -1,60 +1,57 @@
 version: '3.8'
 services:
-  
-  services:
-    version: '3.8'
-    services:
-      web:
-        build:
-          context: ./ecommerce-backend
-          dockerfile: Dockerfile
-        command: gunicorn ecommerce_backend.wsgi:application --bind 0.0.0.0:8000
-        volumes:
-          - ./ecommerce-backend:/app
-        ports:
-          - "8000:8000"
-        env_file:
-          - ./ecommerce-backend/.env
-        depends_on:
-          - db
-          - redis
-      celery:
-        build:
-          context: ./ecommerce-backend
-          dockerfile: Dockerfile
-        command: celery -A ecommerce_backend.celery_app worker --loglevel=info
-        volumes:
-          - ./ecommerce-backend:/app
-        env_file:
-          - ./ecommerce-backend/.env
-        depends_on:
-          - db
-          - redis
-      celery-beat:
-        build:
-          context: ./ecommerce-backend
-          dockerfile: Dockerfile
-        command: celery -A ecommerce_backend.celery_app beat --loglevel=info
-        volumes:
-          - ./ecommerce-backend:/app
-        env_file:
-          - ./ecommerce-backend/.env
-        depends_on:
-          - db
-          - redis
-      db:
-        image: postgres:13
-        volumes:
-          - postgres_data:/var/lib/postgresql/data/
-        environment:
-          POSTGRES_DB: ecommerce
-          POSTGRES_USER: user
-          POSTGRES_PASSWORD: password
-        ports:
-          - "5432:5432"
-      redis:
-        image: redis:6
-        ports:
-          - "6379:6379"
+  web:
+    build:
+      context: ./ecommerce-backend
+      dockerfile: Dockerfile
+    command: gunicorn ecommerce_backend.wsgi:application --bind 0.0.0.0:8000
     volumes:
+      - ./ecommerce-backend:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./ecommerce-backend/.env
+    depends_on:
+      - db
+      - redis
+  celery:
+    build:
+      context: ./ecommerce-backend
+      dockerfile: Dockerfile
+    command: celery -A ecommerce_backend.celery_app worker --loglevel=info
+    volumes:
+      - ./ecommerce-backend:/app
+    env_file:
+      - ./ecommerce-backend/.env
+    depends_on:
+      - db
+      - redis
+  celery-beat:
+    build:
+      context: ./ecommerce-backend
+      dockerfile: Dockerfile
+    command: celery -A ecommerce_backend.celery_app beat --loglevel=info
+    volumes:
+      - ./ecommerce-backend:/app
+    env_file:
+      - ./ecommerce-backend/.env
+    depends_on:
+      - db
+      - redis
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: ecommerce
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+  redis:
+    image: redis:6
+    ports:
+      - "6379:6379"
+volumes:
+  postgres_data:
       postgres_data:
