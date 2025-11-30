@@ -1,48 +1,62 @@
+version: '3.8'
+
 services:
   web:
-    build: .
-    command: sh -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
+    build:
+      context: ./ecommerce-backend
+      dockerfile: Dockerfile
+    command: gunicorn ecommerce_backend.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - ./ecommerce:/app
+      - ./ecommerce-backend:/app
     ports:
       - "8000:8000"
     env_file:
-      - ./ecommerce/.env
+      - ./ecommerce-backend/.env
+    depends_on:
+      - db
+      - redis
+
+  celery:
+    build:
+      context: ./ecommerce-backend
+      dockerfile: Dockerfile
+    command: celery -A ecommerce_backend.celery_app worker --loglevel=info
+    volumes:
+      - ./ecommerce-backend:/app
+    env_file:
+      - ./ecommerce-backend/.env
+    depends_on:
+      - db
+      - redis
+
+  celery-beat:
+    build:
+      context: ./ecommerce-backend
+      dockerfile: Dockerfile
+    command: celery -A ecommerce_backend.celery_app beat --loglevel=info
+    volumes:
+      - ./ecommerce-backend:/app
+    env_file:
+      - ./ecommerce-backend/.env
     depends_on:
       - db
       - redis
 
   db:
-    image: postgres:15
+    image: postgres:13
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ecommerce
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
   redis:
-    image: redis:7
+    image: redis:6
     ports:
       - "6379:6379"
 
-  celery:
-    build: .
-    command: celery -A core worker -l info
-    env_file:
-      - ./ecommerce/.env
-    depends_on:
-      - redis
-      - db
-
-  celery-beat:
-    build: .
-    command: celery -A core beat -l info
-    env_file:
-      - ./ecommerce/.env
-    depends_on:
-      - redis
-      - db
-
 volumes:
-  pgdata:
+  postgres_data:
