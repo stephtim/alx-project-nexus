@@ -1,0 +1,2 @@
+# config package
+default_app_config = "ecommerce.apps.EcommerceConfig"
