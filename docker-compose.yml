@@ -35,8 +35,8 @@ services:
       context: ./ecommerce-backend
       dockerfile: Dockerfile
     command: celery -A ecommerce_backend.celery_app beat --loglevel=info
-    volumes:
-      - ./ecommerce-backend:/app
+    #volumes:
+      #- ./ecommerce-backend:/app
     env_file:
       - ./ecommerce-backend/.env
     depends_on:
